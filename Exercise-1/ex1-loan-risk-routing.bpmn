@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+  id="Definitions_Ex1_BPMN"
+  targetNamespace="http://bpmn.io/schema/bpmn"
+  exporter="Camunda Modeler"
+  exporterVersion="5.49.0"
+  modeler:executionPlatform="Camunda Cloud"
+  modeler:executionPlatformVersion="8.9.0">
+
+  <bpmn:process id="Process_Ex1_LoanRisk" isExecutable="true">
+
+    <bpmn:startEvent
+      id="StartEvent_Ex1"
+      name="Loan Application Submitted">
+
+      <bpmn:outgoing>Flow_Ex1_Start</bpmn:outgoing>
+
+    </bpmn:startEvent>
+
+    <bpmn:businessRuleTask
+      id="Task_Ex1_EvaluateRisk"
+      name="Evaluate Loan Risk">
+
+      <bpmn:extensionElements>
+        <zeebe:calledDecision
+          decisionId="evaluate-loan-risk"
+          resultVariable="loanRisk"/>
+      </bpmn:extensionElements>
+
+      <bpmn:incoming>Flow_Ex1_Start</bpmn:incoming>
+      <bpmn:outgoing>Flow_Ex1_ToGateway</bpmn:outgoing>
+
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway
+      id="Gateway_Ex1_RiskTier"
+      name="Risk Tier?">
+
+      <bpmn:incoming>Flow_Ex1_ToGateway</bpmn:incoming>
+
+      <bpmn:outgoing>Flow_Ex1_Low</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Ex1_Medium</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Ex1_High</bpmn:outgoing>
+
+    </bpmn:exclusiveGateway>
+
+    <bpmn:serviceTask
+      id="Task_Ex1_AutoApprove"
+      name="Auto-Approve and Disburse">
+
+      <bpmn:incoming>Flow_Ex1_Low</bpmn:incoming>
+      <bpmn:outgoing>Flow_Ex1_ApprovedEnd</bpmn:outgoing>
+
+    </bpmn:serviceTask>
+
+    <bpmn:userTask
+      id="Task_Ex1_Underwriter"
+      name="Underwriter Review">
+
+      <bpmn:incoming>Flow_Ex1_Medium</bpmn:incoming>
+      <bpmn:outgoing>Flow_Ex1_ManualEnd</bpmn:outgoing>
+
+    </bpmn:userTask>
+
+    <bpmn:serviceTask
+      id="Task_Ex1_AutoReject"
+      name="Auto-Reject Notification">
+
+      <bpmn:incoming>Flow_Ex1_High</bpmn:incoming>
+      <bpmn:outgoing>Flow_Ex1_RejectedEnd</bpmn:outgoing>
+
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent
+      id="EndEvent_Ex1_Approved"
+      name="Loan Approved">
+
+      <bpmn:incoming>Flow_Ex1_ApprovedEnd</bpmn:incoming>
+
+    </bpmn:endEvent>
+
+    <bpmn:endEvent
+      id="EndEvent_Ex1_Manual"
+      name="Sent for Manual Review">
+
+      <bpmn:incoming>Flow_Ex1_ManualEnd</bpmn:incoming>
+
+    </bpmn:endEvent>
+
+    <bpmn:endEvent
+      id="EndEvent_Ex1_Rejected"
+      name="Loan Rejected">
+
+      <bpmn:incoming>Flow_Ex1_RejectedEnd</bpmn:incoming>
+
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow
+      id="Flow_Ex1_Start"
+      sourceRef="StartEvent_Ex1"
+      targetRef="Task_Ex1_EvaluateRisk"/>
+
+    <bpmn:sequenceFlow
+      id="Flow_Ex1_ToGateway"
+      sourceRef="Task_Ex1_EvaluateRisk"
+      targetRef="Gateway_Ex1_RiskTier"/>
+
+    <bpmn:sequenceFlow
+      id="Flow_Ex1_Low"
+      sourceRef="Gateway_Ex1_RiskTier"
+      targetRef="Task_Ex1_AutoApprove">
+
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
+        =loanRisk.riskTier = "LOW"
+      </bpmn:conditionExpression>
+
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow
+      id="Flow_Ex1_Medium"
+      sourceRef="Gateway_Ex1_RiskTier"
+      targetRef="Task_Ex1_Underwriter">
+
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
+        =loanRisk.riskTier = "MEDIUM" or loanRisk.requiresManualReview = true
+      </bpmn:conditionExpression>
+
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow
+      id="Flow_Ex1_High"
+      sourceRef="Gateway_Ex1_RiskTier"
+      targetRef="Task_Ex1_AutoReject">
+
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
+        =loanRisk.riskTier = "HIGH" and loanRisk.requiresManualReview = false
+      </bpmn:conditionExpression>
+
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow
+      id="Flow_Ex1_ApprovedEnd"
+      sourceRef="Task_Ex1_AutoApprove"
+      targetRef="EndEvent_Ex1_Approved"/>
+
+    <bpmn:sequenceFlow
+      id="Flow_Ex1_ManualEnd"
+      sourceRef="Task_Ex1_Underwriter"
+      targetRef="EndEvent_Ex1_Manual"/>
+
+    <bpmn:sequenceFlow
+      id="Flow_Ex1_RejectedEnd"
+      sourceRef="Task_Ex1_AutoReject"
+      targetRef="EndEvent_Ex1_Rejected"/>
+
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Ex1">
+    <bpmndi:BPMNPlane
+      id="BPMNPlane_Ex1"
+      bpmnElement="Process_Ex1_LoanRisk">
+
+      <bpmndi:BPMNShape
+        id="StartEvent_Ex1_di"
+        bpmnElement="StartEvent_Ex1">
+        <dc:Bounds x="100" y="180" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape
+        id="Task_Ex1_EvaluateRisk_di"
+        bpmnElement="Task_Ex1_EvaluateRisk">
+        <dc:Bounds x="190" y="160" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape
+        id="Gateway_Ex1_RiskTier_di"
+        bpmnElement="Gateway_Ex1_RiskTier"
+        isMarkerVisible="true">
+        <dc:Bounds x="360" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape
+        id="Task_Ex1_AutoApprove_di"
+        bpmnElement="Task_Ex1_AutoApprove">
+        <dc:Bounds x="480" y="80" width="130" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape
+        id="Task_Ex1_Underwriter_di"
+        bpmnElement="Task_Ex1_Underwriter">
+        <dc:Bounds x="480" y="160" width="130" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape
+        id="Task_Ex1_AutoReject_di"
+        bpmnElement="Task_Ex1_AutoReject">
+        <dc:Bounds x="480" y="260" width="130" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape
+        id="EndEvent_Ex1_Approved_di"
+        bpmnElement="EndEvent_Ex1_Approved">
+        <dc:Bounds x="680" y="102" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape
+        id="EndEvent_Ex1_Manual_di"
+        bpmnElement="EndEvent_Ex1_Manual">
+        <dc:Bounds x="680" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape
+        id="EndEvent_Ex1_Rejected_di"
+        bpmnElement="EndEvent_Ex1_Rejected">
+        <dc:Bounds x="680" y="282" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

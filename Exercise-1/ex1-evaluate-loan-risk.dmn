@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+  xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+  xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+  xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+  id="Definitions_Ex1_DMN"
+  name="DRD"
+  namespace="http://camunda.org/schema/1.0/dmn"
+  exporter="Camunda Modeler"
+  exporterVersion="5.49.0"
+  modeler:executionPlatform="Camunda Cloud"
+  modeler:executionPlatformVersion="8.9.0">
+
+  <decision id="Decision_Ex1_LoanRisk" name="evaluate-loan-risk">
+
+    <decisionTable id="DecisionTable_Ex1" hitPolicy="UNIQUE">
+
+      <input id="Input_Ex1_CreditScore" label="creditScore">
+        <inputExpression id="InputExpression_Ex1_CreditScore" typeRef="number">
+          <text>creditScore</text>
+        </inputExpression>
+      </input>
+
+      <input id="Input_Ex1_LoanAmount" label="loanAmount">
+        <inputExpression id="InputExpression_Ex1_LoanAmount" typeRef="number">
+          <text>loanAmount</text>
+        </inputExpression>
+      </input>
+
+      <output id="Output_Ex1_RiskTier"
+              label="riskTier"
+              name="riskTier"
+              typeRef="string"/>
+
+      <output id="Output_Ex1_ManualReview"
+              label="requiresManualReview"
+              name="requiresManualReview"
+              typeRef="boolean"/>
+
+      <rule id="Rule_Ex1_1">
+        <inputEntry id="InputEntry_Ex1_1_Credit">
+          <text>&gt;= 750</text>
+        </inputEntry>
+        <inputEntry id="InputEntry_Ex1_1_Amount">
+          <text>&lt;= 50000</text>
+        </inputEntry>
+        <outputEntry id="OutputEntry_Ex1_1_Risk">
+          <text>"LOW"</text>
+        </outputEntry>
+        <outputEntry id="OutputEntry_Ex1_1_Review">
+          <text>false</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="Rule_Ex1_2">
+        <inputEntry id="InputEntry_Ex1_2_Credit">
+          <text>&gt;= 750</text>
+        </inputEntry>
+        <inputEntry id="InputEntry_Ex1_2_Amount">
+          <text>&gt; 50000</text>
+        </inputEntry>
+        <outputEntry id="OutputEntry_Ex1_2_Risk">
+          <text>"MEDIUM"</text>
+        </outputEntry>
+        <outputEntry id="OutputEntry_Ex1_2_Review">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="Rule_Ex1_3">
+        <inputEntry id="InputEntry_Ex1_3_Credit">
+          <text>[600..749]</text>
+        </inputEntry>
+        <inputEntry id="InputEntry_Ex1_3_Amount">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OutputEntry_Ex1_3_Risk">
+          <text>"MEDIUM"</text>
+        </outputEntry>
+        <outputEntry id="OutputEntry_Ex1_3_Review">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="Rule_Ex1_4">
+        <inputEntry id="InputEntry_Ex1_4_Credit">
+          <text>&lt; 600</text>
+        </inputEntry>
+        <inputEntry id="InputEntry_Ex1_4_Amount">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OutputEntry_Ex1_4_Risk">
+          <text>"HIGH"</text>
+        </outputEntry>
+        <outputEntry id="OutputEntry_Ex1_4_Review">
+          <text>false</text>
+        </outputEntry>
+      </rule>
+
+    </decisionTable>
+  </decision>
+
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape
+        id="Decision_Ex1_LoanRisk_di"
+        dmnElementRef="Decision_Ex1_LoanRisk">
+        <dc:Bounds height="80" width="180" x="50" y="100"/>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+
+</definitions>
