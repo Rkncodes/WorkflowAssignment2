@@ -1,4 +1,3 @@
-YES 😭 **You mean a complete raw Markdown file that you can copy-paste directly into `README.md`.** No extra explanation, no weird nested formatting.
 
 ````markdown
 # Workflow Assignment 2
